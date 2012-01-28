@@ -10,17 +10,19 @@ This is the first beta release of this class. Please test it thoroughly before u
 
 ## Object Instantiation ##
 
-The class constructor accepts five parameters:
+The class constructor accepts four parameters:
 
  - an array of query arrays
  - an optional array of shared query variables
  - a valid WP_Query object to merge with
- - an optional thumbnail size
- - an optional array of post metadata keys to retrieve
+ - an optional array of arguments, including:
+  - thumbnail_size
+  - meta\_data
+  - ext\_blog\_note
 
 The first parameter is the only one that is required, and is a multidemensional associative array. The targeted blog's ID is the key (as a string) and the value is an array of WordPress query variables.
 
-If not overridden by specifying, order, orderby and/or posts\_per\_page, the default query returns 10 posts in descending order by date published.
+If not overridden by specifying order, orderby and/or posts\_per\_page, the default query returns 10 posts in descending order by date published.
 
 ### Examples ###
 
@@ -42,16 +44,24 @@ For a list of valid query variables, visit http://codex.wordpress.org/Class\_Ref
 ```php
 global $wp_query;
 
-$multiblog_query = new Multiblog_Query( 
+$multiblog_query = new Multiblog_Query(
 	array( '5' => array( 'post_type' => 'product' ) ), // Get all 'posts' from Blog ID 5
 	array( 'order' => 'ASC', 'orderby' => 'menu_order' ), // Sort them by ascending Menu Order
 	$wp_query, // merge the returned posts with the default WP_Query object
-	apply_filters( 'post_thumbnail_size', 'thumbnail'), // gather thumbnail images in the filtered thumbnail size
-	array( 'popularity', 'ratings' ) // gather 'popularity' and 'ratings' post meta data
+	array(
+		'thumbnail_size' => 'post-thumbnail',
+		'meta_data' => array( 'popularity', 'ratings' ), // gather 'popularity' and 'ratings' post meta data
+		'ext_blog_intro' => 'Published on: '
+	)
 );
 ```
 
-The preceding example returns the 10 'product' posts from blog ID 5 with the lowest menu_order values, and also retreives featured images in thumbnail size and 'popularity' and 'ratings' metadata.
+The preceding example returns the 10 'product' posts from blog ID 5 with the lowest menu_order values, and also retreives featured images in thumbnail size and 'popularity' and 'ratings' metadata. Each post in the query
+retrieved from an external blog will have its 'blog_intro' property set to 'Published on: '. In the loop,
+
+```php echo $post->blog_intro . $post->title; ```
+
+can be used to declare that the post is actually published on another blog.
 
 ## Working With Multiblog\_Query Objects in the Loop ##
 

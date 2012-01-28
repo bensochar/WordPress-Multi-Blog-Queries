@@ -40,14 +40,30 @@ class Multiblog_Query {
      * @param array $queries An associative array of blog IDs and queries in the format 'blog_id' => query_vars_array.
      * @param array $joint_query_vars (Optional) An array of WP_Query query_vars to apply to all queries
      * @param WP_Query $query (Optional) A reference to a WP_Query object with which to merge the additional queries
-     * @param mixed $thumbnail_size (Optional) A valid WordPress image size keyword, a 2-item array (w,h) of size in pixels,
+     * @param array $args (Optional) An array of arguments, including:
+     *
+     * <string> 'thumbnail_size' A valid WordPress image size keyword, a 2-item array (w,h) of size in pixels,
      * or false. If false, no thumbnails will be gathered. If you plan to use thumbnails, do NOT set this to false. If you
      * will not busing thumnbails at all, setting this to false may decrease page load times.
-     * @param mixed $meta_data (Optional) Either a string (or one-dimensinional array of strings) of post meta key names
+     *
+     * <mixed> 'meta_data' Either a string (or one-dimensinional array of strings) of post meta key names
      * to retrieve during the query. The default value is boolean FALSE, which returns no meta data. If meta data will be
      * used while rendering the query results, including the required meta keys in the initial query is far more effiicient.
+     *
+     * <string> 'ext_blog_note' A string to set to $post->blog_intro for use in the lop.
      */
-    public function __construct( array $queries, $joint_query_vars = array(), $query = null, $thumbnail_size = 'post-thumbnail', $meta_data = false ){
+    public function __construct( array $queries, $joint_query_vars = array(), $query = null, $args = array() ){
+
+        $default_args = array(
+            'thumbnail_size' => 'post-thumbnail',
+            'meta_data' => false,
+            'ext_blog_note' => 'Published in '
+            );
+
+        $args = ( is_array( $args ) ) ? array_merge( $default_args, $args ) : $default_args;
+
+        extract( array( 'thumbnail_size' => $args['thumbnail_size'], 'meta_data' => $args['meta_data' ], 'ext_blog_note' => $args['ext_blog_note'] ) );
+
 
         $thumbnail_size = ( $thumbnail_size == 'post-thumbnail' ) ? apply_filters( 'post_thumbnail_size', $thumbnail_size ) : $thumbnail_size;
 
@@ -95,6 +111,7 @@ class Multiblog_Query {
                     $post->blog_id = $blog_id;
                     $post->blog_title = get_bloginfo( 'name' );
                     $post->blog_url = get_bloginfo( 'wpurl' );
+                    $post->blog_intro = $ext_blog_intro;
                     $post->post_permalink = get_permalink( $post->ID );
                     $post->has_thumbnail = ( false !== $thumbnail_size ) ? has_post_thumbnail( $post->ID ) : null;
 
