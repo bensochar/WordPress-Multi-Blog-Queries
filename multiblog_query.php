@@ -672,4 +672,25 @@ class Multiblog_Query {
         }
     }
 
+
+    /**
+    * Switches to the original blog
+    *
+    * Similar to WordPress Core's restore_current_blog(), but returns to the top of
+    * the switch stack instead one step back.
+    */
+    static function restore_current_blog(){
+
+        global $switched, $switched_stack;
+
+        // Return false if we're not switched
+        if ( !$switched ) return false;
+
+        // Reduce the switched stack to one
+        $switched_stack = array( array_shift( $switched_stack ) );
+
+        // Let core do the heavy lifting
+        return restore_current_blog();
+    }
+
 } ?>

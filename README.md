@@ -151,3 +151,14 @@ This function mirrors WordPress's native get\_post\_meta() function, with one ex
 Many developers us WordPress's the\_ID() function to append a unique suffix to HTML element IDs. Since each blog in a multiblog installation has its own Posts table, pulling posts from multiple blogs introduces the chance of ID collisions.
 
 To resolve this, Multiblog\_Query's the\_ID() method appends the blog ID to posts retrieved from alternate blogs.
+
+
+## Static Members ##
+
+### restore_current_blog() ###
+
+WordPress Core's restore\_current\_blog() function restores the _previous_ blog, not the _current_ blog.
+The difference being that when done switching between multiple blogs, the Core function will only step
+you back to the most currently switched from blog.
+
+This method jumps all the way to the original blog.
