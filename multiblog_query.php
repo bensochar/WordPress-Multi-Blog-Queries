@@ -165,7 +165,7 @@ class Multiblog_Query {
             unset( $blog_id, $query_vars );
         }
 
-        restore_current_blog();
+        $this->restore_current_blog();
 
 
         // Build the joint query object
@@ -331,7 +331,7 @@ class Multiblog_Query {
 
                 $post->post_permalink = get_permalink( $post->ID );
 
-                restore_current_blog();
+                $this->restore_current_blog();
 
                 return $post->post_permalink;
 
@@ -478,7 +478,7 @@ class Multiblog_Query {
                     $post->has_thumbnail = false;
                 }
 
-                restore_current_blog();
+                $this->restore_current_blog();
 
                 return $post->has_thumbnail;
 
@@ -586,7 +586,7 @@ class Multiblog_Query {
 
             $html = wp_get_attachment_image( $thumbnail_id, apply_filters( 'post_thumbnail_size', $size ), false, $attr );
 
-            restore_current_blog();
+            $this->restore_current_blog();
 
             return $html;
 
@@ -658,7 +658,7 @@ class Multiblog_Query {
 
             $post_meta = get_post_meta( $post->ID, $key, $single );
 
-            restore_current_blog();
+            $this->restore_current_blog();
 
             return $post_meta;
 
