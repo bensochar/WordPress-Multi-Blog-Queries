@@ -1,6 +1,6 @@
 # WordPress Multi-Blog Query #
 
-**Version:** 0.9.0
+**Version:** 1.0.0
 
 This class offers a mechanism for retrieving posts from WordPress blogs in the same multisite installation and incorprating them into the current site's index and/or archives.
 
