@@ -25,7 +25,7 @@ add_filter( 'post_link', 'Multiblog_Query::filter_get_permalink', 0, 2 );
  * $multiblog_query = new Multiblog_Query( $query_array, array( 'post_type' => 'post' ), $wp_query );
  *
  * @author Dagan Henderson <dagan@digitalconversations.tv>
- * @version 1.0.0
+ * @version 1.1.0
  */
 class Multiblog_Query {
 
@@ -205,7 +205,7 @@ class Multiblog_Query {
                 // Restore the original posts_per_page and paged values
 
                 $query->query_vars['posts_per_page'] = $original_posts_per_page;
-                
+
                 $query->query_vars['paged'] = $original_paged;
 
 
