@@ -92,6 +92,8 @@ class Multiblog_Query {
 
         $joint_query_vars['posts_per_page'] = $joint_query_vars['posts_per_page'] * $joint_query_vars['paged'];
 
+        $joint_query_vars['paged'] = 1;
+
 
         // Build an array of WP_Query objects
 
@@ -175,19 +177,37 @@ class Multiblog_Query {
             $this->_wp_query = $query;
 
 
-            // Rebuild the query results to prevent lost posts on secondary pages
+            // Rebuild the current blog's query results to prevent lost posts on secondary pages
 
             if ( $query->is_paged() ) {
 
+                // Store the original posts_per_page and paged values
+
                 $original_posts_per_page = $query->query_vars['posts_per_page'];
 
+                $original_paged = $query->query_vars['paged'];
+
+
+                // Modify posts_per_page and paged
+
                 $query->query_vars['posts_per_page'] = $query->query_vars['posts_per_page'] * $query->query_vars['paged'];
+
+                $query->query_vars['paged'] = 1;
+
+
+                // Redo the query
 
                 $query->query_vars_changed = true;
 
                 $query->get_posts();
 
+
+                // Restore the original posts_per_page and paged values
+
                 $query->query_vars['posts_per_page'] = $original_posts_per_page;
+                
+                $query->query_vars['paged'] = $original_paged;
+
 
                 $this->query_vars_changed = false;
             }
@@ -203,11 +223,26 @@ class Multiblog_Query {
 
         foreach ( $query_objects as $query ){
 
+            // Add found_posts to the current blog's query object
+
+            $this->_wp_query->found_posts += $query->found_posts;
+
+
+            // Merge this query's posts into the current blog's query object
+
             foreach ( $query->posts as $post ) {
 
                 array_push( $this->_wp_query->posts, $post );
             }
         }
+
+
+        // Update the current query object's max_num_pages property
+
+        $this->_wp_query->max_num_pages = ceil( (float)$this->_wp_query->found_posts / (float)$this->shared_query_vars['posts_per_page']  );
+
+
+        // Sort the posts
 
         usort( $this->_wp_query->posts, array( $this, 'sort_posts' ) );
 
