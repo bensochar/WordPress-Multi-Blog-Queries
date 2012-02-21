@@ -55,17 +55,17 @@ class Multiblog_Query {
     public function __construct( array $queries, $joint_query_vars = array(), $query = null, $args = array() ){
 
         $default_args = array(
-            'thumbnail_size' => 'post-thumbnail',
-            'meta_data' => false,
-            'ext_blog_note' => 'Published in '
+            'thumbnail_size' => 'thumbnail',
+            'meta_data' => false
             );
 
         $args = ( is_array( $args ) ) ? array_merge( $default_args, $args ) : $default_args;
 
-        extract( array( 'thumbnail_size' => $args['thumbnail_size'], 'meta_data' => $args['meta_data' ], 'ext_blog_note' => $args['ext_blog_note'] ) );
+        extract( array( 'thumbnail_size' => $args['thumbnail_size'], 'meta_data' => $args['meta_data' ] ) );
 
 
-        $thumbnail_size = ( $thumbnail_size == 'post-thumbnail' ) ? apply_filters( 'post_thumbnail_size', $thumbnail_size ) : $thumbnail_size;
+        $thumbnail_size = ( $thumbnail_size == 'thumbnail' ) ? apply_filters( 'post_thumbnail_size', $thumbnail_size ) : $thumbnail_size;
+
 
         // Set joint query parameters
 
@@ -103,6 +103,18 @@ class Multiblog_Query {
 
             if ( switch_to_blog( (int)$blog_id ) ) {
 
+                if ( isset( $query_vars['ext_blog_intro'] ) ) {
+
+                    $blog_intro = $query_vars['ext_blog_intro'];
+
+                    unset( $query_vars['ext_blog_intro'] );
+
+                } else {
+
+                    $blog_intro = '';
+                }
+
+
                 $query_objects[(string)$blog_id] = new WP_Query( array_merge( $query_vars, $joint_query_vars ) );
 
 
@@ -113,16 +125,16 @@ class Multiblog_Query {
                     $post->blog_id = $blog_id;
                     $post->blog_title = get_bloginfo( 'name' );
                     $post->blog_url = get_bloginfo( 'wpurl' );
-                    $post->blog_intro = $ext_blog_intro;
+                    $post->blog_intro = $blog_intro;
                     $post->post_permalink = get_permalink( $post->ID );
                     $post->has_thumbnail = ( false !== $thumbnail_size ) ? has_post_thumbnail( $post->ID ) : null;
 
                     if ( true === $post->has_thumbnail ) {
 
-                        $thumbnail = get_post_thumbnail_id( $post->ID );
+                        $thumbnail = get_post( get_post_thumbnail_id( $post->ID ) );
 
                         $post->post_thumbnail_id = $thumbnail->ID;
-                        $post->post_thumbnail_src = wp_get_attachment_image_src( $thumbnail_id, apply_filters( 'post_thumbnail_size', $thumbnail_size ), false );
+                        $post->post_thumbnail_src = wp_get_attachment_image_src( $thumbnail->ID, apply_filters( 'post_thumbnail_size', $thumbnail_size ), false );
                         $post->post_thumbnail_size = $thumbnail_size;
                         $post->post_thumbnail_alt = trim( strip_tags( get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true ) ) );
                         $post->post_thumbnail_title = trim( strip_tags( $thumbnail->post_title ) );
@@ -540,7 +552,7 @@ class Multiblog_Query {
      * retrieved during the initial Multiblog_Query, this value is ignored.
      * @param type $attr
      */
-    static function the_post_thumbnail( $size= 'post-thumbnail', $attr = '' ){
+    static function the_post_thumbnail( $size= 'thumbnail', $attr = '' ){
 
         echo self::get_the_post_thumbnail( null, $size, $attr );
     }
@@ -579,17 +591,17 @@ class Multiblog_Query {
 
         if ( isset( $post->has_thumbnail ) && is_bool( $post->has_thumbnail ) ) {
 
-            if ( $post->has_thumbnail && isset( $post->post_thumnbail_src ) ) {
+            if ( isset( $post->post_thumbnail_src ) ) {
 
                 if ( isset( $post->post_thumbnail_size ) && is_array( $post->post_thumbnail_size ) )
-                        join( 'x', $post->post_thumbnail_size );
+                        $attr_size = "{$post->post_thumbnail_size['width']}x{$post->post_thumbnail_size['height']}";
 
-                if ( !isset( $post->post_thumbnail_size ) || empty( $post->post_thumbnail_size ) )
-                        $post->post_thumbnail_size = 'post-thumbnail';
+                if ( !isset( $size ) )
+                        $attr_size = 'thumbnail';
 
                 $default_attr = array();
 
-                $default_attr['class'] = "attachment-{$post->post_thumbnail_size}";
+                $default_attr['class'] = "attachment-$attr_size";
                 $default_attr['title'] = isset( $post->post_thumbnail_title ) ? $post->post_thumbnail_title : '';
                 $default_attr['alt'] = isset( $post->post_thumbnail_alt ) ? $post->post_thumbnail_alt : '';
 
@@ -599,7 +611,7 @@ class Multiblog_Query {
 
                 list( $src, $width, $height ) = $post->post_thumbnail_src;
 
-                $html = "<img src=\"$src\" width=\"$width\$ height=\"$height\" ";
+                $html = "<img src=\"$src\" width=\"$width\" height=\"$height\" ";
 
                 foreach ( $attr as $name => $value ) {
 

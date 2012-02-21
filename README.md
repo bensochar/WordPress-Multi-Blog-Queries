@@ -45,21 +45,20 @@ For a list of valid query variables, visit http://codex.wordpress.org/Class\_Ref
 global $wp_query;
 
 $multiblog_query = new Multiblog_Query(
-	array( '5' => array( 'post_type' => 'product' ) ), // Get all 'posts' from Blog ID 5
+	array( '5' => array( 'post_type' => 'product', 'ext_blog_intro' => 'Featured From Our Widget Store' ) ), // Get all 'products' from Blog ID 5
 	array( 'order' => 'ASC', 'orderby' => 'menu_order' ), // Sort them by ascending Menu Order
 	$wp_query, // merge the returned posts with the default WP_Query object
 	array(
-		'thumbnail_size' => 'post-thumbnail',
+		'thumbnail_size' => 'thumbnail',
 		'meta_data' => array( 'popularity', 'ratings' ), // gather 'popularity' and 'ratings' post meta data
-		'ext_blog_intro' => 'Published on: '
 	)
 );
 ```
 
 The preceding example returns the 10 'product' posts from blog ID 5 with the lowest menu_order values, and also retreives featured images in thumbnail size and 'popularity' and 'ratings' metadata. Each post in the query
-retrieved from an external blog will have its 'blog_intro' property set to 'Published on: '. In the loop,
+retrieved from an external blog will have its 'blog_intro' property set to 'Featured From Our Widget Store'. In the loop,
 
-```php echo $post->blog_intro . $post->title; ```
+```php echo $post->blog_intro```
 
 can be used to declare that the post is actually published on another blog.
 
