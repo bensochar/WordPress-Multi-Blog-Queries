@@ -402,7 +402,7 @@ class Multiblog_Query {
      */
     static function get_permalink(){
 
-        if ( in_the_loop() ) return get_permalink();
+        return get_permalink();
 
         return '';
     }
@@ -412,7 +412,7 @@ class Multiblog_Query {
      */
     static function the_permalink() {
 
-        if ( in_the_loop() ) echo get_permalink();
+        echo get_permalink();
 
         return;
     }
